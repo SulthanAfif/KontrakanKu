@@ -1,0 +1,14 @@
+*.log
+.DS_Store
+.env
+.env.backup
+.env.production
+/node_modules
+/apps/*/node_modules
+/apps/*/.next
+/apps/*/dist
+/apps/*/*.tsbuildinfo
+/apps/*/.expo
+/apps/*/.env.local
+/apps/*/.env.*.local
+Thumbs.db

@@ -1,0 +1,20 @@
+{
+  "name": "kontrakanku-platform",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/customer",
+    "apps/admin"
+  ],
+  "scripts": {
+    "dev": "npm run dev:customer",
+    "build": "npm run build:customer",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "dev:customer": "npm run dev --workspace kontrakanku-customer",
+    "dev:admin": "npm run start --workspace kontrakanku-admin",
+    "build:customer": "npm run build --workspace kontrakanku-customer"
+  },
+  "dependencies": {
+    "react-dom": "19.3.0"
+  }
+}

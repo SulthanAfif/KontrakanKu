@@ -94,7 +94,7 @@ export function HomePage() {
     void supabase.from("page_views").insert({
       path: "/",
       user_agent: typeof navigator !== "undefined" ? navigator.userAgent.slice(0, 240) : null,
-    }).then(() => undefined).catch(() => undefined);
+    }).then(() => undefined);
 
     return () => {
       isMounted = false;

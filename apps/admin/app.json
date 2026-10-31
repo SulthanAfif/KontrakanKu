@@ -5,7 +5,15 @@
     "scheme": "kontrakanku",
     "version": "1.0.0",
     "icon": "./assets/logo.png",
-    "plugins": [["expo-image-picker", { "photosPermission": "Pilih foto kamar dari galeri perangkat." }], "expo-web-browser"],
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Pilih foto kamar dari galeri perangkat."
+        }
+      ],
+      "expo-web-browser"
+    ],
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "splash": {
@@ -17,8 +25,19 @@
       "supportsTablet": true
     },
     "android": {
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.sulthanafif.kontrakankuadmin"
     },
-    "web": { "favicon": "./assets/logo.png" }
+    "web": {
+      "favicon": "./assets/logo.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "fad9fe65-0d90-44b7-bb9c-48869204d700"
+      }
+    }
   }
 }

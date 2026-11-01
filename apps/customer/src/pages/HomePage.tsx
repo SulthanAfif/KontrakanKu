@@ -161,12 +161,7 @@ export function HomePage() {
               : "Pilihan rumah petak terverifikasi di Padang"}
           </div>
         </div>
-        <div className="hero-art" aria-label="Ilustrasi rumah dan tanaman" role="img" data-reveal="right">
-          <div className="sun" />
-          <div className="house"><div className="roof" /><div className="house-body"><div className="window" /><div className="door" /></div></div>
-          <div className="plant plant-one">♧</div><div className="plant plant-two">♧</div>
-          <div className="art-note">Tempat pulang<br /><strong>yang baru.</strong></div>
-        </div>
+
       </section>
 
       <section className="listing" id="kamar">

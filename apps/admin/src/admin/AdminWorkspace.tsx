@@ -30,7 +30,7 @@ const tabGuidance: Record<Tab, string> = {
 };
 const roomStatuses: RoomStatus[] = ["kosong", "terisi", "maintenance"];
 const roomStatusLabels: Record<RoomStatus, string> = { kosong: "Tersedia", terisi: "Terisi", maintenance: "Perbaikan" };
-const facilityOptions = ["Wi-Fi", "AC", "Kamar mandi dalam", "Kamar mandi luar", "Dapur", "Area parkir", "Listrik", "Air", "Halaman", "Akses 24 jam"];
+const facilityOptions = ["Ruang tamu", "Ruang makan", "Ruang keluarga", "Ruang tidur 2", "Kamar mandi", "Dapur", "Sumur bor"];
 const contractStatuses: Contract["status"][] = ["aktif", "berakhir", "dibatalkan"];
 const paymentStatuses: Payment["status"][] = ["belum_bayar", "lunas", "terlambat"];
 const paymentStatusLabels: Record<Payment["status"], string> = { belum_bayar: "Belum dibayar", lunas: "Lunas", terlambat: "Terlambat" };
@@ -373,7 +373,7 @@ export function AdminWorkspace({ onSignOut, userEmail }: { onSignOut: () => void
       let sequence = 1;
       do { generatedCode = `RP-${String(sequence++).padStart(3, "0")}`; } while (existingCodes.has(generatedCode.toLowerCase()));
     }
-    const payload = { ...roomDraft, kode_kamar: generatedCode, kode_rumah: roomDraft.kode_rumah.trim(), harga_sewa: rentAmount, lantai: Number(roomDraft.lantai), kapasitas: Number(roomCapacityInput), deskripsi: roomDraft.deskripsi?.trim() || null, foto: photoUrls, fasilitas: roomDraft.fasilitas.filter(Boolean) };
+    const payload = { ...roomDraft, kode_kamar: generatedCode, kode_rumah: roomDraft.kode_rumah.trim(), harga_sewa: rentAmount, lantai: Number(roomDraft.lantai), kapasitas: Number(roomCapacityInput), deskripsi: roomDraft.deskripsi?.trim() || null, foto: photoUrls, fasilitas: roomDraft.fasilitas.filter((facility) => facilityOptions.includes(facility)) };
     const result = editingRoom ? await supabase.from("rooms").update(payload).eq("id", editingRoom) : await supabase.from("rooms").insert(payload);
     if (result.error) {
       if (uploadedPaths.length) await supabase.storage.from("room-photos").remove(uploadedPaths);
@@ -627,7 +627,7 @@ export function AdminWorkspace({ onSignOut, userEmail }: { onSignOut: () => void
     setSettings(rows); done("Pengaturan kontak berhasil disimpan.");
   }
 
-  function editRoom(room: Room) { setRoomDraft({ ...room, fasilitas: room.fasilitas ?? [], foto: room.foto ?? [] }); setRoomPriceInput(String(room.harga_sewa)); setRoomCapacityInput(String(room.kapasitas)); setRoomImages([]); setEditingRoom(room.id); }
+  function editRoom(room: Room) { setRoomDraft({ ...room, fasilitas: (room.fasilitas ?? []).filter((facility) => facilityOptions.includes(facility)), foto: room.foto ?? [] }); setRoomPriceInput(String(room.harga_sewa)); setRoomCapacityInput(String(room.kapasitas)); setRoomImages([]); setEditingRoom(room.id); }
   function editTenant(tenant: Tenant) { setTenantDraft({ ...tenant }); setEditingTenant(tenant.id); }
   function editContract(contract: Contract) { setContractDraft({ ...contract }); setEditingContract(contract.id); }
   function editPayment(payment: Payment) { setPaymentDraft({ ...payment }); setPaymentProofImage(null); setEditingPayment(payment.id); }
@@ -642,7 +642,7 @@ export function AdminWorkspace({ onSignOut, userEmail }: { onSignOut: () => void
 
   const roomForm = <Panel title={editingRoom ? "Edit rumah petak" : "Tambah rumah petak baru"} subtitle="Kelola informasi dan ketersediaan unit. Unit disewakan kosongan tanpa perabot.">
     <View style={styles.formGrid}><Field label="Nama rumah petak *" value={roomDraft.kode_rumah} onChangeText={(v) => setRoomDraft({ ...roomDraft, kode_rumah: v })} placeholder="Contoh: Petak Melati" /><Field label="Harga sewa / tahun *" value={roomPriceInput} onChangeText={setRoomPriceInput} placeholder="Contoh: 15000000 atau 15 juta" /><Field label="Lantai" value={String(roomDraft.lantai)} onChangeText={(v) => setRoomDraft({ ...roomDraft, lantai: Number(v) || 1 })} keyboardType="numeric" /><Field label="Kapasitas orang" value={roomCapacityInput} onChangeText={setRoomCapacityInput} keyboardType="numeric" placeholder="Contoh: 1" /><Field label="Deskripsi" value={roomDraft.deskripsi ?? ""} onChangeText={(v) => setRoomDraft({ ...roomDraft, deskripsi: v })} multiline />
-      <View style={styles.field}><Text style={styles.fieldLabel}>Fasilitas</Text><View style={styles.facilityGrid}>{Array.from(new Set([...facilityOptions, ...roomDraft.fasilitas])).map((facility) => { const checked = roomDraft.fasilitas.includes(facility); return <TouchableOpacity key={facility} accessibilityRole="checkbox" accessibilityState={{ checked }} style={[styles.facilityChoice, checked && styles.facilityChoiceActive]} onPress={() => setRoomDraft({ ...roomDraft, fasilitas: checked ? roomDraft.fasilitas.filter((item) => item !== facility) : [...roomDraft.fasilitas, facility] })}><View style={[styles.checkbox, checked && styles.checkboxActive]}>{checked ? <Text style={styles.checkboxCheck}>✓</Text> : null}</View><Text style={[styles.facilityText, checked && styles.facilityTextActive]}>{facility}</Text></TouchableOpacity>; })}</View></View>
+      <View style={styles.field}><Text style={styles.fieldLabel}>Fasilitas</Text><View style={styles.facilityGrid}>{facilityOptions.map((facility) => { const checked = roomDraft.fasilitas.includes(facility); return <TouchableOpacity key={facility} accessibilityRole="checkbox" accessibilityState={{ checked }} style={[styles.facilityChoice, checked && styles.facilityChoiceActive]} onPress={() => setRoomDraft({ ...roomDraft, fasilitas: checked ? roomDraft.fasilitas.filter((item) => item !== facility) : [...roomDraft.fasilitas, facility] })}><View style={[styles.checkbox, checked && styles.checkboxActive]}>{checked ? <Text style={styles.checkboxCheck}>✓</Text> : null}</View><Text style={[styles.facilityText, checked && styles.facilityTextActive]}>{facility}</Text></TouchableOpacity>; })}</View></View>
     </View>
     <Choices label="Ketersediaan rumah petak" value={roomDraft.status} onChange={(v) => setRoomDraft({ ...roomDraft, status: v as RoomStatus })} options={roomStatuses.map((status) => ({ value: status, label: roomStatusLabels[status] }))} />
     <View style={styles.uploadBox}>{roomDraft.foto.length || roomImages.length ? <View style={styles.photoThumbRow}>{roomDraft.foto.map((uri, index) => <Image key={`saved-${uri}-${index}`} source={{ uri }} style={styles.photoThumb} resizeMode="cover" />)}{roomImages.map((image, index) => <Image key={`new-${image.uri}-${index}`} source={{ uri: image.uri }} style={styles.photoThumb} resizeMode="cover" />)}</View> : <Text style={styles.helper}>Pilih sampai 8 foto. JPG, PNG, atau WebP; maksimal 5 MB per foto.</Text>}<View style={styles.formActions}><Button label={roomImages.length ? "Tambah foto lagi" : "Pilih beberapa foto"} secondary onPress={() => void chooseRoomImage()} />{roomImages.length ? <Button label="Hapus pilihan foto baru" secondary onPress={() => setRoomImages([])} /> : null}</View></View>

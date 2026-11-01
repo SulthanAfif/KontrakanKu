@@ -63,6 +63,7 @@ a { color: inherit; text-decoration: none; }
   background: #092e27;
 }
 .home-welcome-image { min-height: 0; display: flex; align-items: center; justify-content: center; }
+.home-welcome-image picture { display: block; width: 100%; height: 100%; }
 .home-welcome-image img { display: block; width: 100%; height: 100%; object-fit: contain; }
 .home-welcome-image:focus-visible { outline-offset: -5px; }
 .home-scroll-cue { justify-self: center; display: inline-flex; align-items: center; gap: 14px; padding: 16px 24px; color: #e3f5eb; font-size: 12px; font-weight: 600; }
@@ -326,7 +327,8 @@ footer p, footer > span { color: var(--muted); font-size: 10.5px; }
   .detail-layout { grid-template-columns: minmax(0, 1fr) minmax(290px, .75fr); gap: 30px; }
 }
 @media (max-width: 760px) {
-  .home-welcome { height: calc(100svh - 70px); }
+  .home-welcome { height: auto; min-height: 0; grid-template-rows: auto auto; }
+  .home-welcome-image picture, .home-welcome-image img { height: auto; }
   .topbar { height: 70px; padding: 0 22px; }
   .topbar .brand-logo { width: 42px; height: 42px; }
   .brand-wordmark { font-size: 16px; }

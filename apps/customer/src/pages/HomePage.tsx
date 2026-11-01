@@ -132,7 +132,10 @@ export function HomePage() {
     <>
       <section className="home-welcome" aria-label="Selamat datang di KontrakanKu">
         <a className="home-welcome-image" href="#home-content" aria-label="Mulai cari rumah petak, lanjut ke informasi hunian">
-          <img src="/images/home-welcome.png" width="1672" height="941" fetchPriority="high" alt="KontrakanKu. Temukan rumah petak untuk ditinggali. Cari, bandingkan, dan sewa rumah petak dengan mudah." />
+          <picture>
+            <source media="(max-width: 760px)" srcSet="/images/home-welcome-mobile.png" width="941" height="1672" />
+            <img src="/images/home-welcome.png" width="1672" height="941" fetchPriority="high" alt="KontrakanKu. Temukan rumah petak untuk ditinggali. Cari, bandingkan, dan sewa rumah petak dengan mudah." />
+          </picture>
         </a>
         <a className="home-scroll-cue" href="#home-content">Gulir untuk mengenal hunian <span aria-hidden="true">↓</span></a>
       </section>

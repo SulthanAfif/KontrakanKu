@@ -12,3 +12,4 @@
 /apps/*/.env.local
 /apps/*/.env.*.local
 Thumbs.db
+/apps/admin/google-services.json

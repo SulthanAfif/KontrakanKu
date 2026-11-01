@@ -4,6 +4,8 @@ import * as WebBrowser from "expo-web-browser";
 import { ActivityIndicator, Alert, Image, Platform, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { supabase } from "../lib/supabase";
 import { AdminWorkspace } from "./admin/AdminWorkspace";
+import { AdminNotifications } from "./admin/AdminNotifications";
+import { unregisterNotifications } from "../lib/notificationService";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -16,6 +18,8 @@ export default function App() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
+  const [notificationOpenId, setNotificationOpenId] = useState(0);
+  const [notificationRefreshId, setNotificationRefreshId] = useState(0);
 
   async function checkAccess() {
     if (!supabase) {
@@ -79,12 +83,18 @@ export default function App() {
   }
 
   async function signOut() {
+    try {
+      await unregisterNotifications();
+    } catch (error) {
+      Alert.alert("Belum dapat keluar", error instanceof Error ? error.message : "Coba kembali sebentar lagi.");
+      return;
+    }
     await supabase?.auth.signOut();
     setAccess("signedOut");
     setMessage("Anda sudah keluar.");
   }
 
-  if (access === "allowed") return <SafeAreaView style={styles.app}><AdminWorkspace onSignOut={() => void signOut()} userEmail={userEmail} /></SafeAreaView>;
+  if (access === "allowed") return <SafeAreaView style={styles.app}><AdminNotifications onOpenBookings={() => setNotificationOpenId((value) => value + 1)} onNewBooking={() => setNotificationRefreshId((value) => value + 1)} /><AdminWorkspace onSignOut={() => void signOut()} userEmail={userEmail} notificationOpenId={notificationOpenId} notificationRefreshId={notificationRefreshId} /></SafeAreaView>;
 
   return <SafeAreaView style={styles.loginPage}><View style={styles.loginCard}>
     <View style={styles.loginBrand}><View style={styles.logo}><Image source={require("../assets/logo.png")} style={styles.logoImage} resizeMode="contain" /></View><Text style={styles.loginWordmark}>KontrakanKu</Text></View>

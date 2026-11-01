@@ -32,7 +32,7 @@ export function RoomGallery({ photos, className, alt, children }: RoomGalleryPro
       onTouchEnd={handleTouchEnd}
       aria-label={images.length > 1 ? `${alt}, foto ${safeIndex + 1} dari ${images.length}` : alt}
     >
-      {images.length ? <img className="gallery-image" src={images[safeIndex]} alt={alt} /> : <div className="gallery-placeholder" aria-hidden="true"><span>⌂</span><small>Foto segera hadir</small></div>}
+      {images.length ? <img key={images[safeIndex]} className="gallery-image" src={images[safeIndex]} alt={alt} /> : <div className="gallery-placeholder" aria-hidden="true"><span>⌂</span><small>Foto segera hadir</small></div>}
       {children}
       {images.length > 1 ? <>
         <button className="gallery-arrow gallery-prev" type="button" aria-label="Foto sebelumnya" onClick={() => move(-1)}>‹</button>

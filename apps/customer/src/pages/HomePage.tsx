@@ -20,6 +20,10 @@ type Room = {
 
 const faqs = [
   {
+    question: "Apa saja fasilitas yang tersedia di setiap rumah?",
+    answer: "Setiap rumah memiliki ruang tamu, ruang makan, ruang keluarga, 2 ruang tidur, kamar mandi, dapur, dan sumber air sumur bor. Unit disewakan kosongan, sehingga Anda dapat membawa perabot sendiri.",
+  },
+  {
     question: "Apa artinya rumah petak disewakan kosongan?",
     answer: "Unit disewakan tanpa perabot dan tanpa furnitur. Anda bebas menata sendiri sesuai kebutuhan, sehingga hunian terasa lebih personal dan nyaman.",
   },
@@ -45,7 +49,7 @@ const faqs = [
   },
   {
     question: "Apakah harga sewa sudah termasuk listrik dan air?",
-    answer: "Ketentuan listrik dan air dapat berbeda pada setiap unit. Silakan tanyakan langsung kepada pengelola saat survei atau melalui WhatsApp agar informasinya jelas sebelum menyewa.",
+    answer: "Setiap rumah menggunakan sumber air sumur bor. Untuk biaya listrik, penggunaan air, dan biaya lain di luar sewa tahunan, konfirmasikan rinciannya kepada pengelola sebelum menyewa.",
   },
   {
     question: "Bisakah pengajuan sewa dibatalkan?",
@@ -78,6 +82,7 @@ export function HomePage() {
       .select("id, kode_kamar, kode_rumah, deskripsi, harga_sewa, lantai, kapasitas, fasilitas, foto, status")
       .in("status", ["kosong", "terisi"])
       .order("harga_sewa", { ascending: true })
+      .order("kode_rumah", { ascending: true })
       .limit(8)
       .then(({ data }) => {
         if (isMounted) {
@@ -107,6 +112,10 @@ export function HomePage() {
 
   useEffect(() => {
     const elements = document.querySelectorAll<HTMLElement>("[data-reveal]");
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)) {
+      elements.forEach((element) => element.classList.add("is-visible"));
+      return;
+    }
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
@@ -121,11 +130,18 @@ export function HomePage() {
 
   return (
     <>
-      <section className="hero">
+      <section className="home-welcome" aria-label="Selamat datang di KontrakanKu">
+        <a className="home-welcome-image" href="#home-content" aria-label="Mulai cari rumah petak, lanjut ke informasi hunian">
+          <img src="/images/home-welcome.png" width="1672" height="941" fetchPriority="high" alt="KontrakanKu. Temukan rumah petak untuk ditinggali. Cari, bandingkan, dan sewa rumah petak dengan mudah." />
+        </a>
+        <a className="home-scroll-cue" href="#home-content">Gulir untuk mengenal hunian <span aria-hidden="true">↓</span></a>
+      </section>
+
+      <section className="hero" id="home-content">
         <div className="hero-content" data-reveal="left">
-          <p className="eyebrow">RUMAH PETAK, HIDUP LEBIH TENANG</p>
-          <h1>Temukan rumah petak<br />untuk <em>ditinggali.</em></h1>
-          <p className="hero-copy">Rumah petak terawat di Padang untuk disewa tahunan dengan proses yang jelas dan transparan. Setiap unit disewakan dalam kondisi kosongan tanpa perabot, sehingga Anda bebas menata ruang sesuai kebutuhan keluarga. Cocok bagi yang mencari hunian tenang, dekat fasilitas umum, dan ingin merencanakan biaya sewa untuk satu tahun penuh.</p>
+          <p className="eyebrow">RUMAH PETAK DI PADANG</p>
+          <h1>Ruang untuk keluarga,<br />tempat untuk <em>pulang.</em></h1>
+          <p className="hero-copy">Temukan pilihan RUMAH-001 hingga RUMAH-004 untuk disewa tahunan di Padang. Setiap rumah memiliki ruang tamu, ruang makan, ruang keluarga, 2 ruang tidur, kamar mandi, dapur, dan sumur bor. Disewakan kosongan tanpa perabot, siap Anda tata sesuai kebutuhan keluarga.</p>
           <div className="hero-actions">
             <a className="primary-button" href="#kamar">Jelajahi rumah petak <span aria-hidden="true">↗</span></a>
             <a className="secondary-button" href="#faq">Baca pertanyaan umum</a>
@@ -133,8 +149,8 @@ export function HomePage() {
           <div className="hero-highlights">
             <span>Sewa tahunan</span>
             <span>Unit kosongan</span>
-            <span>Bisa survei lokasi</span>
-            <span>Proses jelas</span>
+            <span>2 ruang tidur</span>
+            <span>Air sumur bor</span>
           </div>
           <div className="hero-proof">
             <span className="proof-dot" />
@@ -155,7 +171,7 @@ export function HomePage() {
 
       <section className="listing" id="kamar">
         <div className="section-heading" data-reveal>
-          <div><p className="eyebrow">PILIHAN UNTUK ANDA</p><h2>Rumah petak</h2></div>
+          <div><p className="eyebrow">PILIH RUMAH ANDA</p><h2>Rumah untuk keluarga</h2></div>
           <span className="listing-count">{isSupabaseConfigured ? `${availableCount} tersedia · ${occupiedCount} terisi` : "Katalog segera hadir"}</span>
         </div>
         {!isSupabaseConfigured ? (
@@ -172,7 +188,7 @@ export function HomePage() {
                 <div className="room-info">
                   <div className="room-title"><h3>{room.kode_rumah}</h3><span>Lantai {room.lantai} · {room.kapasitas} orang</span></div>
                   <p>{room.deskripsi || "Rumah petak disewakan kosongan tanpa perabot. Siap Anda tata sesuai kebutuhan."}</p>
-                  {room.fasilitas?.length ? <div className="room-tags">{room.fasilitas.slice(0, 3).map((facility) => <span key={facility}>{facility}</span>)}</div> : null}
+                  {room.fasilitas?.length ? <div className="room-tags">{room.fasilitas.map((facility) => <span key={facility}>{facility}</span>)}</div> : null}
                   <div className="room-bottom"><strong>{formatPrice(Number(room.harga_sewa))}<small> / tahun</small></strong><Link to={`/kamar/${room.id}`} aria-label={`Lihat kamar ${room.kode_kamar}`}>↗</Link></div>
                 </div>
               </article>
@@ -194,12 +210,12 @@ export function HomePage() {
       </section>
 
       <section className="about" id="tentang" data-reveal>
-        <p className="eyebrow">SEWA TANPA RIBET</p><h2>Semua yang Anda butuhkan,<br />sejak hari pertama.</h2>
-        <div className="features" data-reveal>
-          <div><span>01</span><h3>Proses yang jelas</h3><p>Lihat detail lengkap rumah petak, ajukan sewa, dan pantau status pengajuan dari akun Anda dalam beberapa langkah sederhana tanpa harus bolak-balik menghubungi pengelola.</p></div>
-          <div><span>02</span><h3>Hunian terawat</h3><p>Setiap unit dijaga kebersihan dan kondisinya sebelum ditempati, sehingga Anda bisa langsung menata ruang sesuai kebutuhan keluarga tanpa harus memperbaiki banyak hal.</p></div>
-          <div><span>03</span><h3>Dukungan langsung</h3><p>Tim pengelola siap membantu melalui WhatsApp jika Anda memiliki pertanyaan tentang unit, jadwal survei, atau proses kontrak dan pembayaran tahunan.</p></div>
-          <div><span>04</span><h3>Survei lokasi langsung</h3><p>Kami sangat menyarankan Anda melihat rumah petak dan lingkungannya secara langsung sebelum memutuskan. Jadwalkan survei agar lebih yakin dengan pilihan Anda.</p>{chatNumber ? <a className="feature-link" href={`https://wa.me/${chatNumber}?text=${encodeURIComponent("Halo, saya ingin menjadwalkan survei lokasi rumah petak.")}`} target="_blank" rel="noreferrer">Jadwalkan survei ↗</a> : <a className="feature-link" href="#lokasi">Lihat lokasi ↗</a>}</div>
+        <p className="eyebrow">KENALI HUNIAN ANDA</p><h2>Ruang untuk keseharian,<br />kemudahan untuk menyewa.</h2>
+        <div className="features">
+          <div data-reveal style={{ transitionDelay: "0ms" }}><span>01</span><h3>Ruang untuk keluarga</h3><p>Ruang tamu, ruang makan, dan ruang keluarga memberi tempat untuk menerima tamu, makan bersama, dan berkumpul. Dua ruang tidur tersedia untuk kebutuhan istirahat keluarga.</p></div>
+          <div data-reveal style={{ transitionDelay: "90ms" }}><span>02</span><h3>Fasilitas sehari-hari</h3><p>Setiap rumah dilengkapi kamar mandi, dapur, dan sumber air sumur bor. Unit tanpa perabot memberi Anda kebebasan membawa perlengkapan dan menata rumah sendiri.</p></div>
+          <div data-reveal style={{ transitionDelay: "180ms" }}><span>03</span><h3>Sewa tahunan yang jelas</h3><p>Lihat harga sewa per tahun dan status ketersediaan pada setiap rumah. Buka detail unit, lengkapi biodata, lalu kirim pengajuan sewa melalui akun Anda.</p></div>
+          <div data-reveal style={{ transitionDelay: "270ms" }}><span>04</span><h3>Survei lokasi langsung</h3><p>Kami sangat menyarankan Anda melihat rumah petak dan lingkungannya secara langsung sebelum memutuskan. Jadwalkan survei agar lebih yakin dengan pilihan Anda.</p>{chatNumber ? <a className="feature-link" href={`https://wa.me/${chatNumber}?text=${encodeURIComponent("Halo, saya ingin menjadwalkan survei lokasi rumah petak.")}`} target="_blank" rel="noreferrer">Jadwalkan survei ↗</a> : <a className="feature-link" href="#lokasi">Lihat lokasi ↗</a>}</div>
         </div>
       </section>
 
@@ -220,11 +236,11 @@ export function HomePage() {
               const isOpen = openFaq === index;
               return (
                 <div className={`faq-item${isOpen ? " is-open" : ""}`} key={faq.question}>
-                  <button type="button" aria-expanded={isOpen} onClick={() => setOpenFaq(isOpen ? null : index)}>
+                  <button id={`faq-question-${index}`} type="button" aria-expanded={isOpen} aria-controls={`faq-answer-${index}`} onClick={() => setOpenFaq(isOpen ? null : index)}>
                     <span>{faq.question}</span>
                     <span className="faq-icon" aria-hidden="true">{isOpen ? "−" : "+"}</span>
                   </button>
-                  {isOpen ? <p>{faq.answer}</p> : null}
+                  <div className="faq-answer" id={`faq-answer-${index}`} role="region" aria-labelledby={`faq-question-${index}`} aria-hidden={!isOpen}><div><p>{faq.answer}</p></div></div>
                 </div>
               );
             })}
@@ -232,7 +248,7 @@ export function HomePage() {
         </div>
       </section>
 
-      <footer><Link className="brand brand-lockup" to="/" aria-label="KontrakanKu beranda"><img className="brand-logo" src="/logo.png" alt="" /><span className="brand-wordmark">KontrakanKu</span></Link><p>{contact.contact_address || "Kota Padang, Sumatera Barat, Indonesia"}{contact.contact_hours ? ` · ${contact.contact_hours}` : ""}</p><div className="footer-contact">{contact.contact_email ? <a href={`mailto:${contact.contact_email}`}>{contact.contact_email}</a> : null}{chatNumber ? <a href={`https://wa.me/${chatNumber}`} target="_blank" rel="noreferrer">WhatsApp</a> : null}<a href="#faq">FAQ</a><span>© 2026 Kontrakanku</span></div></footer>
+      <footer><Link className="brand brand-lockup" to="/" aria-label="KontrakanKu beranda"><img className="brand-logo" src="/logo.png" alt="" /><span className="brand-wordmark">KontrakanKu</span></Link><p>{contact.contact_address || "Kota Padang, Sumatera Barat, Indonesia"}{contact.contact_hours ? ` · ${contact.contact_hours}` : ""}</p><div className="footer-contact">{chatNumber ? <a href={`https://wa.me/${chatNumber}`} target="_blank" rel="noreferrer">WhatsApp</a> : null}<a href="#faq">FAQ</a><span>© 2026 Kontrakanku</span></div></footer>
     </>
   );
 }

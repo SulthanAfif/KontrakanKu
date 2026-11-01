@@ -13,7 +13,14 @@
         }
       ],
       "expo-web-browser",
-      "expo-sqlite"
+      "expo-sqlite",
+      [
+        "expo-notifications",
+        {
+          "defaultChannel": "booking-alerts",
+          "color": "#315c45"
+        }
+      ]
     ],
     "orientation": "portrait",
     "userInterfaceStyle": "light",
@@ -28,7 +35,9 @@
     "android": {
       "edgeToEdgeEnabled": true,
       "permissions": [
-        "android.permission.RECORD_AUDIO"
+        "android.permission.RECORD_AUDIO",
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.VIBRATE"
       ],
       "package": "com.sulthanafif.kontrakankuadmin"
     },

@@ -155,10 +155,16 @@ function SimpleMenuButton({ icon, label, detail, onPress }: { icon: string; labe
   </TouchableOpacity>;
 }
 
-export function AdminWorkspace({ onSignOut, userEmail }: { onSignOut: () => void; userEmail?: string }) {
+export function AdminWorkspace({ onSignOut, userEmail, notificationOpenId = 0, notificationRefreshId = 0 }: { onSignOut: () => void; userEmail?: string; notificationOpenId?: number; notificationRefreshId?: number }) {
   const { width } = useWindowDimensions();
   const wide = Platform.OS === "web" && width >= 1050;
   const [activeTab, setActiveTab] = useState<Tab>("Ringkasan");
+  useEffect(() => {
+    if (notificationOpenId) { setSimpleMode(false); setActiveTab("Booking"); setSearch(""); }
+  }, [notificationOpenId]);
+  useEffect(() => {
+    if (notificationRefreshId || notificationOpenId) setRefresh((value) => value + 1);
+  }, [notificationRefreshId, notificationOpenId]);
   const [rooms, setRooms] = useState<Room[]>([]);
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -676,7 +682,8 @@ export function AdminWorkspace({ onSignOut, userEmail }: { onSignOut: () => void
   </Panel>;
 
   async function deleteRoom(room: Room) {
-    if (!supabase) return;
+    const client = supabase;
+    if (!client) return;
     const hasContract = contracts.some((c) => c.room_id === room.id && c.status === "aktif");
     if (hasContract) {
       Alert.alert("Tidak bisa dihapus", "Rumah petak ini masih punya kontrak aktif.");
@@ -687,7 +694,7 @@ export function AdminWorkspace({ onSignOut, userEmail }: { onSignOut: () => void
       { text: "Hapus", style: "destructive", onPress: () => {
         void (async () => {
           setSaving(true);
-          const { error } = await supabase.from("rooms").delete().eq("id", room.id);
+          const { error } = await client.from("rooms").delete().eq("id", room.id);
           if (error) { failed(error, "Gagal menghapus rumah petak."); return; }
           done("Rumah petak berhasil dihapus.");
           setRefresh((v) => v + 1);
@@ -697,13 +704,14 @@ export function AdminWorkspace({ onSignOut, userEmail }: { onSignOut: () => void
   }
 
   async function deleteTenant(tenant: Tenant) {
-    if (!supabase) return;
+    const client = supabase;
+    if (!client) return;
     Alert.alert("Hapus penyewa?", `Yakin hapus ${tenant.nama_lengkap}?`, [
       { text: "Batal", style: "cancel" },
       { text: "Hapus", style: "destructive", onPress: () => {
         void (async () => {
           setSaving(true);
-          const { error } = await supabase.from("tenants").delete().eq("id", tenant.id);
+          const { error } = await client.from("tenants").delete().eq("id", tenant.id);
           if (error) { failed(error, "Gagal menghapus penyewa."); return; }
           done("Penyewa berhasil dihapus.");
           setRefresh((v) => v + 1);

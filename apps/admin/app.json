@@ -12,7 +12,8 @@
           "photosPermission": "Pilih foto kamar dari galeri perangkat."
         }
       ],
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-sqlite"
     ],
     "orientation": "portrait",
     "userInterfaceStyle": "light",
